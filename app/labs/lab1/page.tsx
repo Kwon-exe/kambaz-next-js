@@ -251,6 +251,6 @@ This is the third paragraph. Wrap each paragraph with the paragraph tag to tell 
       Please
       <a href="https://www.lipsum.com" id="wd-lipsum">click here</a>
       to get dummy text<br/>
-      <a href="https://www.lipsum.com" id="wd-github">Github repo</a>
+      <a href="https://github.com/Kwon-exe/kambaz-next-js" id="wd-github">Github repo</a>
     </div>
 );}
