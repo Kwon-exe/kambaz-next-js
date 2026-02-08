@@ -36,7 +36,11 @@ export default function KambazNavigation() {
             isActive("/account") ? "text-danger" : "text-white"
           }`}
         >
-          <FaRegCircleUser className="fs-1 text-white" />
+          <FaRegCircleUser
+            className={`fs-1 ${
+              isActive("/account") ? "text-danger" : "text-white"
+            }`}
+          />
           <br />
           Account
         </Link>
