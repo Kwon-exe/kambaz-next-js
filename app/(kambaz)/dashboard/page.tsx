@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   Button,
   Card,
@@ -25,7 +24,7 @@ export default function Dashboard() {
               >
                 <CardImg
                   variant="top"
-                  src="/images/reactjs.jpg"
+                  src="/images/Kambaz.jpg"
                   width="100%"
                   height={160}
                 />
