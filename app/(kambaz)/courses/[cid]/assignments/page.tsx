@@ -51,7 +51,7 @@ export default function Assignments() {
                   href="/courses/1234/assignments/123"
                   className="wd-assignment-link text-dark d-block fw-bold text-decoration-none"
                 >
-                  A1 - ENV + HTML
+                  A1
                 </Link>
                 <div className="font-size-1rem text-secondary">
                   <span className="text-danger">Multiple Modules</span> |{" "}
@@ -79,7 +79,7 @@ export default function Assignments() {
                   href="/courses/1234/assignments/124"
                   className="wd-assignment-link text-dark d-block fw-bold text-decoration-none"
                 >
-                  A2 - HTML
+                  A2
                 </Link>
                 <div className="font-size-1rem text-secondary">
                   <span className="text-danger">Multiple Modules</span> |{" "}
@@ -107,7 +107,7 @@ export default function Assignments() {
                   href="/courses/1234/assignments/125"
                   className="wd-assignment-link text-dark d-block fw-bold text-decoration-none"
                 >
-                  A3 - CSS
+                  A3
                 </Link>
                 <div className="font-size-1rem text-secondary">
                   <span className="text-danger">Multiple Modules</span> |{" "}
