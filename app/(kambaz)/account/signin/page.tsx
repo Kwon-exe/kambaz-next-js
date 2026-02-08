@@ -1,11 +1,26 @@
 import Link from "next/link";
+import FormControl from "react-bootstrap/esm/FormControl";
 export default function Signin() {
- return (
+  return (
     <div id="wd-signin-screen">
-      <h3>Sign in</h3>
-      <input className="wd-username" placeholder="username" defaultValue={"username"} /> <br />
-      <input className="wd-password" placeholder="password" type="password" defaultValue={"password"} /> <br />
-      <Link id="wd-signin-btn" href="/dashboard"> Sign in </Link> <br />
-      <Link id="wd-signup-link" href="signup"> Sign up </Link>
+      <h1>Sign in</h1>
+      <FormControl id="wd-username" placeholder="username" className="mb-2" />
+      <FormControl
+        id="wd-password"
+        placeholder="password"
+        type="password"
+        className="mb-2"
+      />
+      <Link
+        id="wd-signin-btn"
+        href="/account/profile"
+        className="btn btn-primary w-100 mb-2"
+      >
+        Sign in{" "}
+      </Link>
+      <Link id="wd-signup-link" href="/account/signup">
+        Sign up
+      </Link>
     </div>
-);}
+  );
+}
