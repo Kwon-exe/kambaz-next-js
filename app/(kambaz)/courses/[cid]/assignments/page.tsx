@@ -1,4 +1,6 @@
+"use client";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { BsGripVertical } from "react-icons/bs";
 import { BsPlus } from "react-icons/bs";
 import AssignmentControlButtons from "./assignmentControlButtons";
@@ -6,8 +8,43 @@ import { CiSearch } from "react-icons/ci";
 import { DropdownToggle } from "react-bootstrap";
 import { LuNotebookPen } from "react-icons/lu";
 import SingleAssignmentControlButton from "./singleAssignmentControlButton";
+import { assignments } from "@/app/(kambaz)/database";
+
+interface Assignment {
+  _id: string;
+  title: string;
+  course: string;
+  availableDate?: string;
+  dueDate?: string;
+  points?: number;
+  modules?: string;
+}
+
+function formatDate(dateString: string): string {
+  const [year, month, day] = dateString.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  return `${months[date.getMonth()]} ${date.getDate()}`;
+}
 
 export default function Assignments() {
+  const { cid } = useParams();
+  const courseAssignments = assignments.filter(
+    (assignment: Assignment) => assignment.course === cid,
+  );
   return (
     <div id="wd-assignments" className="font-size-1.5rem">
       <div className="position-relative d-inline-block">
@@ -39,90 +76,49 @@ export default function Assignments() {
         <span className="fs-4">ASSIGNMENTS</span> <AssignmentControlButtons />
       </div>
       <ul id="wd-assignment-list" className="list-unstyled m-0">
-        <div className="border-start border-success border-4 p-3">
-          <div className="wd-assignment-list-item font-size-1.25rem">
-            <div className="d-flex align-items-center">
-              <div className="me-2 d-flex align-items-center">
-                <BsGripVertical className="me-2 fs-3" />
-                <LuNotebookPen className="fs-3 text-success" />
-              </div>
-              <div className="flex-grow-1 pe-3">
-                <Link
-                  href="/courses/1234/assignments/123"
-                  className="wd-assignment-link text-dark d-block fw-bold text-decoration-none"
-                >
-                  A1
-                </Link>
-                <div className="font-size-1rem text-secondary">
-                  <span className="text-danger">Multiple Modules</span> |{" "}
-                  <b>Not available</b> until May 6 at 12:00 AM |
+        {courseAssignments.map((assignment: Assignment) => (
+          <div
+            key={assignment._id}
+            className="border-start border-success border-4 p-3"
+          >
+            <div className="wd-assignment-list-item font-size-1.25rem">
+              <div className="d-flex align-items-center">
+                <div className="me-2 d-flex align-items-center">
+                  <BsGripVertical className="me-2 fs-3" />
+                  <LuNotebookPen className="fs-3 text-success" />
                 </div>
-                <div className="font-size-1rem text-secondary">
-                  <b>Due</b> May 6 at 11:59 PM | 10 Points
+                <div className="flex-grow-1 pe-3">
+                  <Link
+                    href={`/courses/${cid}/assignments/${assignment._id}`}
+                    className="wd-assignment-link text-dark d-block fw-bold text-decoration-none"
+                  >
+                    {assignment.title}
+                  </Link>
+                  <div className="font-size-1rem text-secondary">
+                    <span className="text-danger">
+                      {assignment.modules || "Multiple Modules"}
+                    </span>{" "}
+                    | <b>Not available</b> until{" "}
+                    {assignment.availableDate
+                      ? formatDate(assignment.availableDate)
+                      : "May 6"}{" "}
+                    |
+                  </div>
+                  <div className="font-size-1rem text-secondary">
+                    <b>Due</b>{" "}
+                    {assignment.dueDate
+                      ? formatDate(assignment.dueDate)
+                      : "May 13"}{" "}
+                    | {assignment.points || 100} Points
+                  </div>
                 </div>
-              </div>
-              <div>
-                <SingleAssignmentControlButton />
+                <div>
+                  <SingleAssignmentControlButton />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="border-start border-success border-4 p-3">
-          <div className="wd-assignment-list-item font-size-1.25rem">
-            <div className="d-flex align-items-center">
-              <div className="me-2 d-flex align-items-center">
-                <BsGripVertical className="me-2 fs-3" />
-                <LuNotebookPen className="fs-3 text-success" />
-              </div>
-              <div className="flex-grow-1 pe-3">
-                <Link
-                  href="/courses/1234/assignments/124"
-                  className="wd-assignment-link text-dark d-block fw-bold text-decoration-none"
-                >
-                  A2
-                </Link>
-                <div className="font-size-1rem text-secondary">
-                  <span className="text-danger">Multiple Modules</span> |{" "}
-                  <b>Not available</b> until May 13 at 12:00 AM |
-                </div>
-                <div className="font-size-1rem text-secondary">
-                  <b>Due</b> May 13 at 11:59 PM | 10 Points
-                </div>
-              </div>
-              <div>
-                <SingleAssignmentControlButton />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="border-start border-success border-4 p-3">
-          <div className="wd-assignment-list-item font-size-1.25rem">
-            <div className="d-flex align-items-center">
-              <div className="me-2 d-flex align-items-center">
-                <BsGripVertical className="me-2 fs-3" />
-                <LuNotebookPen className="fs-3 text-success" />
-              </div>
-              <div className="flex-grow-1 pe-3">
-                <Link
-                  href="/courses/1234/assignments/125"
-                  className="wd-assignment-link text-dark d-block fw-bold text-decoration-none"
-                >
-                  A3
-                </Link>
-                <div className="font-size-1rem text-secondary">
-                  <span className="text-danger">Multiple Modules</span> |{" "}
-                  <b>Not available</b> until May 20 at 12:00 AM |
-                </div>
-                <div className="font-size-1rem text-secondary">
-                  <b>Due</b> May 20 at 11:59 PM | 10 Points
-                </div>
-              </div>
-              <div>
-                <SingleAssignmentControlButton />
-              </div>
-            </div>
-          </div>
-        </div>
+        ))}
       </ul>
     </div>
   );

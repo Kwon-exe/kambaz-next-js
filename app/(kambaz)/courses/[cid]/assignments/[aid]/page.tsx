@@ -1,4 +1,26 @@
+"use client";
+import { useParams } from "next/navigation";
+import { assignments } from "@/app/(kambaz)/database";
+
+interface Assignment {
+  _id: string;
+  title: string;
+  course: string;
+  description: string;
+  points: number;
+  dueDate: string;
+  availableDate: string;
+  availableUntil: string;
+}
+
 export default function AssignmentEditor() {
+  const { aid } = useParams();
+  const assignment = assignments.find((a: Assignment) => a._id === aid);
+
+  if (!assignment) {
+    return <div>Assignment not found</div>;
+  }
+
   return (
     <div id="wd-assignments-editor">
       <div className="mb-3">
@@ -8,7 +30,7 @@ export default function AssignmentEditor() {
         <input
           id="wd-name"
           className="form-control"
-          defaultValue="A1 - ENV + HTML"
+          defaultValue={assignment.title}
         />
       </div>
 
@@ -16,10 +38,12 @@ export default function AssignmentEditor() {
         <label htmlFor="wd-description" className="form-label">
           Description
         </label>
-        <textarea id="wd-description" className="form-control" rows={5}>
-          The assignment is available online Submit a link to the landing page
-          of
-        </textarea>
+        <textarea
+          id="wd-description"
+          className="form-control"
+          rows={5}
+          defaultValue={assignment.description}
+        ></textarea>
       </div>
 
       <div className="row mb-3">
@@ -30,7 +54,7 @@ export default function AssignmentEditor() {
           <input
             id="wd-points"
             className="form-control"
-            defaultValue={100}
+            defaultValue={assignment.points || 100}
             type="number"
           />
         </div>
@@ -162,7 +186,7 @@ export default function AssignmentEditor() {
                 type="date"
                 id="due"
                 className="form-control"
-                defaultValue="2026-01-01"
+                defaultValue={assignment.dueDate || "2024-05-13"}
               />
             </div>
 
@@ -175,7 +199,7 @@ export default function AssignmentEditor() {
                   type="date"
                   id="available-from"
                   className="form-control"
-                  defaultValue="2026-01-01"
+                  defaultValue={assignment.availableDate || "2024-05-06"}
                 />
               </div>
               <div className="col-md-6 mb-3">
@@ -186,7 +210,7 @@ export default function AssignmentEditor() {
                   type="date"
                   id="until"
                   className="form-control"
-                  defaultValue="2026-01-01"
+                  defaultValue={assignment.availableUntil || "2024-05-20"}
                 />
               </div>
             </div>
