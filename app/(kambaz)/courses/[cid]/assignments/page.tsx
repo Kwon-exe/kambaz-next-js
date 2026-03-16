@@ -8,7 +8,9 @@ import { CiSearch } from "react-icons/ci";
 import { DropdownToggle } from "react-bootstrap";
 import { LuNotebookPen } from "react-icons/lu";
 import SingleAssignmentControlButton from "./singleAssignmentControlButton";
-import { assignments } from "@/app/(kambaz)/database";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/app/(kambaz)/store";
+import { deleteAssignment } from "./reducer";
 
 interface Assignment {
   _id: string;
@@ -41,10 +43,29 @@ function formatDate(dateString: string): string {
 }
 
 export default function Assignments() {
-  const { cid } = useParams();
-  const courseAssignments = assignments.filter(
-    (assignment: Assignment) => assignment.course === cid,
+  const { cid } = useParams<{ cid: string | string[] }>();
+  const courseId = Array.isArray(cid) ? cid[0] : cid;
+  const dispatch = useDispatch();
+  const { assignments } = useSelector(
+    (state: RootState) => state.assignmentsReducer,
   );
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer,
+  );
+  const isFaculty =
+    (currentUser as { role?: string } | null)?.role === "FACULTY";
+  const courseAssignments = assignments.filter(
+    (assignment: Assignment) => assignment.course === courseId,
+  );
+
+  const confirmAndDeleteAssignment = (assignmentId: string) => {
+    const shouldDelete = window.confirm(
+      "Are you sure you want to remove this assignment?",
+    );
+    if (!shouldDelete) return;
+    dispatch(deleteAssignment(assignmentId));
+  };
+
   return (
     <div id="wd-assignments" className="font-size-1.5rem">
       <div className="position-relative d-inline-block">
@@ -55,25 +76,31 @@ export default function Assignments() {
           placeholder="Search..."
         />
       </div>{" "}
-      <button
-        id="wd-add-assignment"
-        className="float-end bg-danger text-white border-0 me-1 rounded-1"
-      >
-        <BsPlus /> Assignment
-      </button>
-      <button
-        id="wd-add-assignment-group"
-        className="float-end border-0 me-1 rounded-1 bg-secondary"
-      >
-        <BsPlus /> Group
-      </button>
+      {isFaculty && (
+        <Link
+          id="wd-add-assignment"
+          href={`/courses/${courseId}/assignments/new`}
+          className="float-end bg-danger text-white border-0 me-1 rounded-1 px-2 py-1 text-decoration-none"
+        >
+          <BsPlus /> Assignment
+        </Link>
+      )}
+      {isFaculty && (
+        <button
+          id="wd-add-assignment-group"
+          className="float-end border-0 me-1 rounded-1 bg-secondary"
+        >
+          <BsPlus /> Group
+        </button>
+      )}
       <div
         id="wd-assignments-title"
         className="wd-title p-3 ps-2 bg-secondary font-size-2rem mt-3"
       >
         <BsGripVertical className="me-2 fs-3 font-size-2rem" />
         <DropdownToggle variant="secondary" size="lg" id="wd-publish-all-btn" />
-        <span className="fs-4">ASSIGNMENTS</span> <AssignmentControlButtons />
+        <span className="fs-4">ASSIGNMENTS</span>{" "}
+        {isFaculty && <AssignmentControlButtons />}
       </div>
       <ul id="wd-assignment-list" className="list-unstyled m-0">
         {courseAssignments.map((assignment: Assignment) => (
@@ -89,7 +116,7 @@ export default function Assignments() {
                 </div>
                 <div className="flex-grow-1 pe-3">
                   <Link
-                    href={`/courses/${cid}/assignments/${assignment._id}`}
+                    href={`/courses/${courseId}/assignments/${assignment._id}`}
                     className="wd-assignment-link text-dark d-block fw-bold text-decoration-none"
                   >
                     {assignment.title}
@@ -113,7 +140,13 @@ export default function Assignments() {
                   </div>
                 </div>
                 <div>
-                  <SingleAssignmentControlButton />
+                  <SingleAssignmentControlButton
+                    onDelete={
+                      isFaculty
+                        ? () => confirmAndDeleteAssignment(assignment._id)
+                        : undefined
+                    }
+                  />
                 </div>
               </div>
             </div>
