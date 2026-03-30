@@ -10,7 +10,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
+kambaz-node-server-app/node_modules
 # testing
 /coverage
 
