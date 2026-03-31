@@ -10,11 +10,11 @@ interface Assignment {
   _id: string;
   title: string;
   course: string;
-  description: string;
-  points: number;
-  dueDate: string;
-  availableDate: string;
-  availableUntil: string;
+  description?: string;
+  points?: number;
+  dueDate?: string;
+  availableDate?: string;
+  availableUntil?: string;
 }
 
 interface AssignmentFormData {
