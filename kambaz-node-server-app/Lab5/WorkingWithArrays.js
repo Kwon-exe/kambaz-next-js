@@ -24,7 +24,7 @@ export default function WorkingWithArrays(app) {
       completed: false,
     };
     todos.push(newTodo);
-    res.json(todos);
+    res.json(newTodo);
   };
 
   const getTodoById = (req, res) => {
@@ -36,20 +36,50 @@ export default function WorkingWithArrays(app) {
   const removeTodo = (req, res) => {
     const { id } = req.params;
     const todoIndex = todos.findIndex((t) => t.id === parseInt(id));
-    todos.splice(todoIndex, 1);
+    if (todoIndex !== -1) {
+      todos.splice(todoIndex, 1);
+    }
     res.json(todos);
   };
 
   const updateTodoTitle = (req, res) => {
     const { id, title } = req.params;
     const todo = todos.find((t) => t.id === parseInt(id));
-    todo.title = title;
+    if (todo) {
+      todo.title = title;
+    }
     res.json(todos);
+  };
+
+  const updateTodo = (req, res) => {
+    const { id } = req.params;
+    const updatedData = req.body;
+    const todoIndex = todos.findIndex((t) => t.id === parseInt(id));
+    if (todoIndex !== -1) {
+      todos[todoIndex] = {
+        ...todos[todoIndex],
+        ...updatedData,
+        id: parseInt(id),
+      };
+    }
+    res.json(todos[todoIndex] || null);
+  };
+
+  const postTodo = (req, res) => {
+    const newTodo = {
+      id: new Date().getTime(),
+      ...req.body,
+    };
+    todos.push(newTodo);
+    res.status(201).json(newTodo);
   };
 
   app.get("/lab5/todos", getTodos);
   app.get("/lab5/todos/create", createNewTodo);
+  app.post("/lab5/todos", postTodo);
   app.get("/lab5/todos/:id", getTodoById);
   app.get("/lab5/todos/:id/delete", removeTodo);
+  app.delete("/lab5/todos/:id", removeTodo);
+  app.put("/lab5/todos/:id", updateTodo);
   app.get("/lab5/todos/:id/title/:title", updateTodoTitle);
 }

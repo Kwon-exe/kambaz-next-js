@@ -11,10 +11,22 @@ import EnrollmentsRoutes from "./Kambaz/enrollments/routes.js";
 import "dotenv/config";
 import session from "express-session";
 const app = express();
+
+// Extract base origin from CLIENT_URL (strip any path)
+const getOrigin = () => {
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  try {
+    const url = new URL(clientUrl);
+    return `${url.protocol}//${url.host}`;
+  } catch {
+    return clientUrl;
+  }
+};
+
 app.use(
   cors({
     credentials: true,
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: getOrigin(),
   }),
 );
 

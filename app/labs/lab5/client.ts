@@ -19,12 +19,12 @@ export const fetchTodos = async () => {
   return response.data;
 };
 export const removeTodo = async (todo: any) => {
-  const response = await axios.delete(`${TODOS_API}/${todo.id}`);
-  return response.status;
+  const response = await axios.get(`${TODOS_API}/${todo.id}/delete`);
+  return response.data;
 };
 
 export const deleteTodo = async (todo: any) => {
-  const response = await axios.delete(`${TODOS_API}/${todo.id}`);
+  const response = await axios.get(`${TODOS_API}/${todo.id}/delete`);
   return response.data;
 };
 
