@@ -1,5 +1,6 @@
 "use client";
-import { useEffect } from "react";
+import * as client from "../client";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "../reducer";
@@ -19,6 +20,7 @@ type ProfileData = {
 };
 
 export default function Profile() {
+  const [profile, setProfile] = useState<ProfileData>({});
   const dispatch = useDispatch();
   const router = useRouter();
   const { currentUser } = useSelector(
@@ -33,23 +35,30 @@ export default function Profile() {
   useEffect(() => {
     if (!currentUser) {
       router.replace("/account/signin");
+      return;
     }
+    const user = currentUser as ProfileData;
+    setProfile({
+      ...user,
+      dob: toInputDate(user.dob),
+    });
   }, [currentUser, router]);
 
   if (!currentUser) return null;
 
-  const profile: ProfileData = {
-    ...(currentUser as ProfileData),
-    dob: toInputDate((currentUser as ProfileData).dob),
+  const updateProfile = async () => {
+    const updatedProfile = await client.updateUser(profile);
+    dispatch(setCurrentUser(updatedProfile));
+    setProfile({
+      ...(updatedProfile as ProfileData),
+      dob: toInputDate((updatedProfile as ProfileData).dob),
+    });
   };
 
-  const updateProfile = (changes: Partial<ProfileData>) => {
-    dispatch(setCurrentUser({ ...profile, ...changes }));
-  };
-
-  const signout = () => {
+  const signout = async () => {
+    await client.signout();
     dispatch(setCurrentUser(null));
-    router.push("/account/signin");
+    router.replace("/account/signin");
   };
 
   return (
@@ -61,44 +70,52 @@ export default function Profile() {
             id="wd-username"
             className="mb-2"
             value={profile.username || ""}
-            onChange={(e) => updateProfile({ username: e.target.value })}
+            onChange={(e) =>
+              setProfile({ ...profile, username: e.target.value })
+            }
           />
           <FormControl
             id="wd-password"
             className="mb-2"
             value={profile.password || ""}
-            onChange={(e) => updateProfile({ password: e.target.value })}
+            onChange={(e) =>
+              setProfile({ ...profile, password: e.target.value })
+            }
           />
           <FormControl
             id="wd-firstname"
             className="mb-2"
             value={profile.firstName || ""}
-            onChange={(e) => updateProfile({ firstName: e.target.value })}
+            onChange={(e) =>
+              setProfile({ ...profile, firstName: e.target.value })
+            }
           />
           <FormControl
             id="wd-lastname"
             className="mb-2"
             value={profile.lastName || ""}
-            onChange={(e) => updateProfile({ lastName: e.target.value })}
+            onChange={(e) =>
+              setProfile({ ...profile, lastName: e.target.value })
+            }
           />
           <FormControl
             id="wd-dob"
             className="mb-2"
             type="date"
             value={profile.dob || ""}
-            onChange={(e) => updateProfile({ dob: e.target.value })}
+            onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
           />
           <FormControl
             id="wd-email"
             className="mb-2"
             value={profile.email || ""}
-            onChange={(e) => updateProfile({ email: e.target.value })}
+            onChange={(e) => setProfile({ ...profile, email: e.target.value })}
           />
           <select
             className="form-control mb-2"
             id="wd-role"
             value={profile.role || ""}
-            onChange={(e) => updateProfile({ role: e.target.value })}
+            onChange={(e) => setProfile({ ...profile, role: e.target.value })}
           >
             <option value="">Select role</option>
             <option value="USER">User</option>
@@ -107,9 +124,19 @@ export default function Profile() {
             <option value="STUDENT">Student</option>
             <option value="TA">TA</option>
           </select>
-          <Button onClick={signout} className="w-100 mb-2" id="wd-signout-btn">
-            Sign out
+          <Button
+            onClick={updateProfile}
+            className="btn btn-primary w-100 mb-2"
+            id="wd-update-btn"
+          >
+            Update
           </Button>
+          <button
+            onClick={signout}
+            className="wd-signout-btn btn btn-danger w-100"
+          >
+            Sign out
+          </button>
         </div>
       )}
     </div>

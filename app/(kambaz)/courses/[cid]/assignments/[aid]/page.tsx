@@ -4,6 +4,7 @@ import { ChangeEvent, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/app/(kambaz)/store";
 import { addAssignment, deleteAssignment, updateAssignment } from "../reducer";
+import * as client from "../client";
 
 interface Assignment {
   _id: string;
@@ -89,36 +90,41 @@ export default function AssignmentEditor() {
       setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-  const saveAssignment = () => {
+  const saveAssignment = async () => {
     if (!isFaculty) {
       navigateToAssignments();
       return;
     }
 
     if (isNewAssignment) {
-      dispatch(addAssignment({ ...formData, course: courseId }));
+      const newAssignment = await client.createAssignmentForCourse(courseId, {
+        ...formData,
+        course: courseId,
+      });
+      dispatch(addAssignment(newAssignment));
       navigateToAssignments();
       return;
     }
 
     if (assignment) {
-      dispatch(
-        updateAssignment({
-          ...assignment,
-          ...formData,
-          course: courseId,
-        }),
-      );
+      const updatedAssignment = {
+        ...assignment,
+        ...formData,
+        course: courseId,
+      };
+      await client.updateAssignment(updatedAssignment);
+      dispatch(updateAssignment(updatedAssignment));
       navigateToAssignments();
     }
   };
 
-  const removeAssignment = () => {
+  const removeAssignment = async () => {
     if (!isFaculty || isNewAssignment || !assignment) {
       navigateToAssignments();
       return;
     }
 
+    await client.deleteAssignment(assignment._id);
     dispatch(deleteAssignment(assignment._id));
     navigateToAssignments();
   };
