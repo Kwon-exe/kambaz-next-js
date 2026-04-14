@@ -43,6 +43,18 @@ export default function AccountNavigation() {
       >
         Profile
       </Link>
+
+      {currentUser?.role === "ADMIN" && (
+        <Link
+          href="/account/users"
+          id="wd-account-users-link"
+          className={`list-group-item border-0 ${
+            isActive("/account/users") ? "active" : "text-danger"
+          }`}
+        >
+          Users
+        </Link>
+      )}
     </div>
   );
 }

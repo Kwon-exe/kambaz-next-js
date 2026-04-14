@@ -15,10 +15,13 @@ export default function Session({ children }: { children: React.ReactNode }) {
     try {
       const currentUser = await client.profile();
       dispatch(setCurrentUser(currentUser));
-      const enrollments = await enrollmentsClient.findMyEnrollments();
-      dispatch(setEnrollments(enrollments));
+      if (currentUser) {
+        const enrollments = await enrollmentsClient.findMyEnrollments();
+        dispatch(setEnrollments(enrollments));
+      } else {
+        dispatch(setEnrollments([]));
+      }
     } catch (error: any) {
-      console.error(error);
       dispatch(setCurrentUser(null));
       dispatch(setEnrollments([]));
     } finally {
