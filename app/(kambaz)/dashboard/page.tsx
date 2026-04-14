@@ -75,13 +75,13 @@ export default function Dashboard() {
 
   const onEnroll = async (courseId: string) => {
     if (!currentUser) return;
-    const enrollment = await enrollmentsClient.enrollInCourse(courseId);
+    const enrollment = await client.enrollIntoCourse(currentUser._id, courseId);
     dispatch(enroll({ userId: enrollment.user, courseId: enrollment.course }));
   };
 
   const onUnenroll = async (courseId: string) => {
     if (!currentUser) return;
-    await enrollmentsClient.unenrollFromCourse(courseId);
+    await client.unenrollFromCourse(currentUser._id, courseId);
     dispatch(unenroll({ userId: currentUser._id, courseId }));
   };
 
