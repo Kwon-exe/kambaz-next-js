@@ -15,6 +15,13 @@ export default function UsersDao(db) {
       $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }],
     });
   };
+  const findUsersByRoleAndPartialName = (role, partialName) => {
+    const regex = new RegExp(partialName, "i");
+    return model.find({
+      role,
+      $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }],
+    });
+  };
   const findUserById = (userId) => model.findById(userId);
   const findUserByUsername = (username) =>
     model.findOne({ username: username });
@@ -31,6 +38,7 @@ export default function UsersDao(db) {
     findAllUsers,
     findUsersByRole,
     findUsersByPartialName,
+    findUsersByRoleAndPartialName,
     findUserById,
     findUserByUsername,
     findUserByCredentials,

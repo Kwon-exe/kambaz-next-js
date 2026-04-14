@@ -15,7 +15,26 @@ export default function UserRoutes(app, db) {
   };
 
   const findAllUsers = async (req, res) => {
-    const { role, name } = req.query;
+    // Fallback parser protects against environments where req.query is not populated.
+    const query = req.query || {};
+    let role = typeof query.role === "string" ? query.role : "";
+    let name = typeof query.name === "string" ? query.name : "";
+
+    if (!role && !name && req.originalUrl?.includes("?")) {
+      const search = req.originalUrl.split("?")[1] || "";
+      const params = new URLSearchParams(search);
+      role = params.get("role") || "";
+      name = params.get("name") || "";
+    }
+
+    role = role.trim();
+    name = name.trim();
+
+    if (role && name) {
+      const users = await dao.findUsersByRoleAndPartialName(role, name);
+      res.json(users);
+      return;
+    }
     if (role) {
       const users = await dao.findUsersByRole(role);
       res.json(users);
