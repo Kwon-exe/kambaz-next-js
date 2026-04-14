@@ -1,0 +1,40 @@
+{
+  "type": "module",
+  "name": "kambaz-node-server-app",
+  "version": "1.0.0",
+  "description": "Node.js HTTP Web server for the Kambaz application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kwon-exe/kambaz-next-js.git"
+  },
+  "keywords": [
+    "Node",
+    "REST",
+    "Server",
+    "HTTP",
+    "Web",
+    "Development",
+    "CS5610",
+    "CS4550"
+  ],
+  "author": "Kwon Lok Young",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kwon-exe/kambaz-next-js/issues"
+  },
+  "homepage": "https://github.com/Kwon-exe/kambaz-next-js#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mongoose": "^8.23.0",
+    "nodemon": "^3.1.14",
+    "uuid": "^13.0.0"
+  }
+}

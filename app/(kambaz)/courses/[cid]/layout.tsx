@@ -22,12 +22,16 @@ export default function CoursesLayout({ children }: { children: ReactNode }) {
   const [showNav, setShowNav] = useState(true);
 
   const canAccessCourse =
-    currentUser?._id != null &&
+    (currentUser?.role === "FACULTY" ||
+      (currentUser?._id != null &&
+        !!courseId &&
+        enrollments.some(
+          (enrollment) =>
+            enrollment.user === currentUser._id &&
+            enrollment.course === courseId,
+        ))) &&
     !!courseId &&
-    enrollments.some(
-      (enrollment) =>
-        enrollment.user === currentUser._id && enrollment.course === courseId,
-    );
+    !!course;
 
   useEffect(() => {
     if (!canAccessCourse) {

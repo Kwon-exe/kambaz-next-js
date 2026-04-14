@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { BsGripVertical } from "react-icons/bs";
 import { BsPlus } from "react-icons/bs";
 import AssignmentControlButtons from "./assignmentControlButtons";
@@ -10,7 +11,8 @@ import { LuNotebookPen } from "react-icons/lu";
 import SingleAssignmentControlButton from "./singleAssignmentControlButton";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/app/(kambaz)/store";
-import { deleteAssignment } from "./reducer";
+import { deleteAssignment, setAssignments } from "./reducer";
+import * as client from "./client";
 
 interface Assignment {
   _id: string;
@@ -58,11 +60,23 @@ export default function Assignments() {
     (assignment: Assignment) => assignment.course === courseId,
   );
 
-  const confirmAndDeleteAssignment = (assignmentId: string) => {
+  const fetchAssignments = async () => {
+    const assignmentsForCourse =
+      await client.findAssignmentsForCourse(courseId);
+    dispatch(setAssignments(assignmentsForCourse));
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, [courseId]);
+
+  const confirmAndDeleteAssignment = async (assignmentId: string) => {
     const shouldDelete = window.confirm(
       "Are you sure you want to remove this assignment?",
     );
     if (!shouldDelete) return;
+
+    await client.deleteAssignment(assignmentId);
     dispatch(deleteAssignment(assignmentId));
   };
 

@@ -10,7 +10,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
+kambaz-node-server-app/node_modules
 # testing
 /coverage
 
@@ -32,7 +32,11 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
 
 # vercel
 .vercel

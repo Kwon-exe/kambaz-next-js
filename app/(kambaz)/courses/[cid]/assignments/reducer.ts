@@ -1,9 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { assignments } from "../../../database";
 import { v4 as uuidv4 } from "uuid";
 
-const initialState = {
-  assignments: assignments,
+type Assignment = {
+  _id: string;
+  title: string;
+  course: string;
+  description?: string;
+  points?: number;
+  dueDate?: string;
+  availableDate?: string;
+  availableUntil?: string;
+};
+
+type AssignmentsState = {
+  assignments: Assignment[];
+};
+
+const initialState: AssignmentsState = {
+  assignments: [],
 };
 
 const assignmentsSlice = createSlice({
@@ -15,7 +29,7 @@ const assignmentsSlice = createSlice({
         ...assignment,
         _id: uuidv4(),
       };
-      state.assignments = [...state.assignments, newAssignment] as any;
+      state.assignments = [...state.assignments, newAssignment] as Assignment[];
     },
     deleteAssignment: (state, { payload: assignmentId }) => {
       state.assignments = state.assignments.filter(
@@ -25,7 +39,7 @@ const assignmentsSlice = createSlice({
     updateAssignment: (state, { payload: assignment }) => {
       state.assignments = state.assignments.map((a: any) =>
         a._id === assignment._id ? assignment : a,
-      ) as any;
+      ) as Assignment[];
     },
     setAssignments: (state, { payload: assignments }) => {
       state.assignments = assignments;
