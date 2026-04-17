@@ -1,6 +1,9 @@
 "use client";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BsXLg } from "react-icons/bs";
+import { FaRegCheckCircle } from "react-icons/fa";
+import { MdOutlineDoNotDisturb } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import { RootState } from "@/app/(kambaz)/store";
@@ -74,7 +77,9 @@ export default function QuizEditor() {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <span className="text-muted">
           Points {totalPoints} &nbsp;
-          {quiz.published ? "✅ Published" : "🚫 Not Published"}
+          {quiz.published
+            ? <><FaRegCheckCircle className="text-success me-1" />Published</>
+            : <><MdOutlineDoNotDisturb className="text-danger me-1" />Not Published</>}
         </span>
       </div>
 
@@ -474,7 +479,7 @@ function QuestionEditor({ question, index, onSave, onCancel, onRemove }: {
                   value={c.text}
                   onChange={(e) => updateChoice(c._id, e.target.value)}
                 />
-                <button className="btn btn-sm btn-outline-danger" onClick={() => removeChoice(c._id)}>✕</button>
+                <button className="btn btn-sm btn-outline-danger" onClick={() => removeChoice(c._id)}><BsXLg /></button>
               </div>
             ))}
             <button className="btn btn-sm btn-outline-secondary" onClick={addChoice}>+ Add Another Answer</button>
@@ -514,7 +519,7 @@ function QuestionEditor({ question, index, onSave, onCancel, onRemove }: {
                   value={ans}
                   onChange={(e) => updateAnswer(i, e.target.value)}
                 />
-                <button className="btn btn-sm btn-outline-danger" onClick={() => removeAnswer(i)}>✕</button>
+                <button className="btn btn-sm btn-outline-danger" onClick={() => removeAnswer(i)}><BsXLg /></button>
               </div>
             ))}
             <button className="btn btn-sm btn-outline-secondary" onClick={addAnswer}>+ Add Another Answer</button>

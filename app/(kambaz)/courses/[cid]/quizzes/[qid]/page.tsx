@@ -1,6 +1,9 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BsPencil } from "react-icons/bs";
+import { FaRegCheckCircle } from "react-icons/fa";
+import { MdOutlineDoNotDisturb } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/app/(kambaz)/store";
 import { updateQuiz, Quiz } from "../reducer";
@@ -51,7 +54,7 @@ export default function QuizDetails() {
 
   if (!quiz) return <div className="p-3">Loading...</div>;
 
-  const totalPoints = quiz.questions.reduce((s, q) => s + (q.points || 0), 0);
+  const totalPoints = (quiz.questions || []).reduce((s, q) => s + (q.points || 0), 0);
   const maxAttemptsAllowed = quiz.multipleAttempts ? quiz.howManyAttempts : 1;
   const canTake = !isFaculty && attemptCount < maxAttemptsAllowed;
 
@@ -71,14 +74,18 @@ export default function QuizDetails() {
                 className="btn btn-secondary"
                 onClick={() => router.push(`/courses/${courseId}/quizzes/${quizId}/edit`)}
               >
-                ✏️ Edit
+                <BsPencil className="me-1" /> Edit
               </button>
             </>
           )}
         </div>
         {isFaculty && (
           <button className="btn btn-sm btn-outline-secondary" onClick={handlePublishToggle}>
-            {quiz.published ? "✅ Published" : "🚫 Unpublished"}
+            {quiz.published ? (
+              <><FaRegCheckCircle className="text-success me-1" />Published</>
+            ) : (
+              <><MdOutlineDoNotDisturb className="text-danger me-1" />Unpublished</>
+            )}
           </button>
         )}
       </div>
@@ -142,6 +149,10 @@ export default function QuizDetails() {
           <tr>
             <td className="text-end fw-bold pe-4">Show Correct Answers</td>
             <td>{quiz.showCorrectAnswers}</td>
+          </tr>
+          <tr>
+            <td className="text-end fw-bold pe-4">Access Code</td>
+            <td>{quiz.accessCode || <span className="text-muted">None</span>}</td>
           </tr>
           <tr>
             <td className="text-end fw-bold pe-4">One Question at a Time</td>

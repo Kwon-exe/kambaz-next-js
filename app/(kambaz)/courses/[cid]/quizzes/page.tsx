@@ -12,11 +12,17 @@ import { RootState } from "@/app/(kambaz)/store";
 import { deleteQuiz, setQuizzes, updateQuiz, addQuiz, defaultQuiz, Quiz } from "./reducer";
 import * as client from "./client";
 
+function formatAvailDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+  });
+}
+
 function getAvailabilityLabel(quiz: Quiz): string {
   const now = new Date();
   if (quiz.untilDate && new Date(quiz.untilDate) < now) return "Closed";
   if (quiz.availableDate && new Date(quiz.availableDate) > now) {
-    return `Not available until ${new Date(quiz.availableDate).toLocaleDateString()}`;
+    return `Not available until ${formatAvailDate(quiz.availableDate)}`;
   }
   return "Available";
 }
@@ -113,7 +119,7 @@ export default function Quizzes() {
 
       <ul className="list-unstyled m-0">
         {filtered.map((quiz: Quiz) => {
-          const totalPoints = quiz.questions.reduce((s, q) => s + (q.points || 0), 0);
+          const totalPoints = (quiz.questions || []).reduce((s, q) => s + (q.points || 0), 0);
           const availability = getAvailabilityLabel(quiz);
           return (
             <li
@@ -140,7 +146,7 @@ export default function Quizzes() {
                   {" | "}
                   {totalPoints} pts
                   {" | "}
-                  {quiz.questions.length} Questions
+                  {(quiz.questions || []).length} Questions
                   {!isFaculty && quiz.lastScore != null && (
                     <span> | Score: {quiz.lastScore}/{quiz.lastMaxScore}</span>
                   )}

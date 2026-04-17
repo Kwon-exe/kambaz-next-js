@@ -42,11 +42,11 @@ const sessionOptions = {
   saveUninitialized: false,
 };
 if (process.env.SERVER_ENV !== "development") {
+  app.set("trust proxy", 1);
   sessionOptions.proxy = true;
   sessionOptions.cookie = {
     sameSite: "none",
     secure: true,
-    domain: process.env.SERVER_URL,
   };
 }
 

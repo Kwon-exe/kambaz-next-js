@@ -1,5 +1,6 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
+import { BsCheckLg, BsChevronLeft, BsChevronRight, BsExclamationTriangleFill, BsPencil, BsXLg } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/(kambaz)/store";
@@ -26,7 +27,7 @@ export default function QuizPreview() {
 
   if (!quiz) return <div className="p-3">Loading...</div>;
 
-  const questions = quiz.questions;
+  const questions = quiz.questions || [];
 
   const setAnswer = (questionId: string, answer: string) =>
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
@@ -82,7 +83,7 @@ export default function QuizPreview() {
                   />
                   <label className="form-check-label" htmlFor={`${q._id}-${c._id}`}>
                     {c.text}
-                    {submitted && c._id === q.correctAnswer && <span className="text-success ms-2">✓ Correct Answer</span>}
+                    {submitted && c._id === q.correctAnswer && <span className="text-success ms-2"><BsCheckLg className="me-1" />Correct Answer</span>}
                   </label>
                 </div>
               ))}
@@ -104,7 +105,7 @@ export default function QuizPreview() {
                   />
                   <label className="form-check-label" htmlFor={`${q._id}-${val}`}>
                     {val === "true" ? "True" : "False"}
-                    {submitted && val === q.correctAnswer && <span className="text-success ms-2">✓ Correct Answer</span>}
+                    {submitted && val === q.correctAnswer && <span className="text-success ms-2"><BsCheckLg className="me-1" />Correct Answer</span>}
                   </label>
                 </div>
               ))}
@@ -129,7 +130,7 @@ export default function QuizPreview() {
           )}
           {submitted && res && (
             <div className={`mt-2 small fw-bold ${res.correct ? "text-success" : "text-danger"}`}>
-              {res.correct ? "✓ Correct" : "✗ Incorrect"}
+              {res.correct ? <><BsCheckLg className="me-1" />Correct</> : <><BsXLg className="me-1" />Incorrect</>}
             </div>
           )}
         </div>
@@ -140,7 +141,7 @@ export default function QuizPreview() {
   return (
     <div id="wd-quiz-preview" className="p-3">
       <div className="alert alert-warning">
-        ⚠️ This is a preview of the published version of the quiz.
+        <BsExclamationTriangleFill className="me-2" />This is a preview of the published version of the quiz.
       </div>
       <h3>{quiz.title}</h3>
       {quiz.description && <p>{quiz.description}</p>}
@@ -161,11 +162,11 @@ export default function QuizPreview() {
               disabled={currentIdx === 0}
               onClick={() => setCurrentIdx((i) => i - 1)}
             >
-              ◀ Previous
+              <BsChevronLeft className="me-1" />Previous
             </button>
             {currentIdx < questions.length - 1 ? (
               <button className="btn btn-secondary" onClick={() => setCurrentIdx((i) => i + 1)}>
-                Next ▶
+                Next <BsChevronRight className="ms-1" />
               </button>
             ) : (
               <button className="btn btn-danger" onClick={handleSubmit}>
@@ -189,9 +190,9 @@ export default function QuizPreview() {
       <div className="d-flex gap-2 mt-2">
         <button
           className="btn btn-outline-secondary"
-          onClick={() => router.push(`/courses/${courseId}/quizzes/${quizId}/edit`)}
+          onClick={() => router.push(`/courses/${courseId}/quizzes/${quizId}/edit?tab=questions`)}
         >
-          ✏️ Keep Editing This Quiz
+          <BsPencil className="me-1" />Keep Editing This Quiz
         </button>
       </div>
     </div>

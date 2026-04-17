@@ -1,5 +1,6 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
+import { BsCheckLg, BsChevronLeft, BsChevronRight, BsXLg } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/(kambaz)/store";
@@ -12,7 +13,6 @@ export default function QuizTake() {
   const quizId = Array.isArray(qid) ? qid[0] : qid;
   const router = useRouter();
   const { quizzes } = useSelector((state: RootState) => state.quizzesReducer);
-  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
 
   const [quiz, setQuiz] = useState<Quiz | null>(
     quizzes.find((q: Quiz) => q._id === quizId) ?? null,
@@ -23,12 +23,19 @@ export default function QuizTake() {
   const [result, setResult] = useState<any>(null);
   const [attemptCount, setAttemptCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [accessCodeInput, setAccessCodeInput] = useState("");
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [accessError, setAccessError] = useState(false);
 
   useEffect(() => {
     const init = async () => {
-      if (!quiz) {
-        const q = await client.findQuizById(quizId);
-        setQuiz(q);
+      let loadedQuiz = quiz;
+      if (!loadedQuiz) {
+        loadedQuiz = await client.findQuizById(quizId);
+        setQuiz(loadedQuiz);
+      }
+      if (loadedQuiz && !loadedQuiz.accessCode) {
+        setAccessGranted(true);
       }
       const lastAttempt = await client.getLastAttempt(quizId);
       const { count } = await client.getAttemptCount(quizId);
@@ -36,6 +43,7 @@ export default function QuizTake() {
       if (lastAttempt) {
         setResult(lastAttempt);
         setSubmitted(true);
+        setAccessGranted(true);
         const prevAnswers: Record<string, string> = {};
         (lastAttempt.answers || []).forEach((a: any) => {
           prevAnswers[a.questionId] = a.answer;
@@ -48,9 +56,18 @@ export default function QuizTake() {
 
   if (!quiz) return <div className="p-3">Loading...</div>;
 
-  const questions = quiz.questions;
+  const questions = quiz.questions || [];
   const maxAttempts = quiz.multipleAttempts ? quiz.howManyAttempts : 1;
   const canRetake = attemptCount < maxAttempts;
+
+  const handleAccessCodeSubmit = () => {
+    if (accessCodeInput === quiz.accessCode) {
+      setAccessGranted(true);
+      setAccessError(false);
+    } else {
+      setAccessError(true);
+    }
+  };
 
   const setAnswer = (questionId: string, answer: string) =>
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
@@ -64,7 +81,7 @@ export default function QuizTake() {
       setSubmitted(true);
       setAttemptCount((c) => c + 1);
     } catch (err: any) {
-      alert(err?.response?.data?.error || "Submission failed");
+      alert(err?.response?.data?.error || "Submission failed.");
     } finally {
       setLoading(false);
     }
@@ -86,7 +103,7 @@ export default function QuizTake() {
     return (
       <div key={q._id} className={`card mb-3 ${borderClass}`} style={{ borderWidth: submitted ? 2 : 1 }}>
         <div className="card-header d-flex justify-content-between">
-          <span>Question {idx + 1}</span>
+          <span className="fw-bold">Question {idx + 1}</span>
           <span>{q.points} pt{q.points !== 1 ? "s" : ""}</span>
         </div>
         <div className="card-body">
@@ -108,7 +125,7 @@ export default function QuizTake() {
                   <label className="form-check-label" htmlFor={`${q._id}-${c._id}`}>
                     {c.text}
                     {submitted && c._id === q.correctAnswer && (
-                      <span className="text-success ms-2">✓ Correct Answer</span>
+                      <span className="text-success ms-2 fw-bold"><BsCheckLg className="me-1" />Correct Answer</span>
                     )}
                   </label>
                 </div>
@@ -117,7 +134,7 @@ export default function QuizTake() {
           )}
           {q.type === "TRUE_FALSE" && (
             <div>
-              {["true", "false"].map((val) => (
+              {(["true", "false"] as const).map((val) => (
                 <div key={val} className="form-check">
                   <input
                     type="radio"
@@ -132,7 +149,7 @@ export default function QuizTake() {
                   <label className="form-check-label" htmlFor={`${q._id}-${val}`}>
                     {val === "true" ? "True" : "False"}
                     {submitted && val === q.correctAnswer && (
-                      <span className="text-success ms-2">✓ Correct Answer</span>
+                      <span className="text-success ms-2 fw-bold"><BsCheckLg className="me-1" />Correct Answer</span>
                     )}
                   </label>
                 </div>
@@ -158,7 +175,7 @@ export default function QuizTake() {
           )}
           {submitted && res && (
             <div className={`mt-2 small fw-bold ${res.correct ? "text-success" : "text-danger"}`}>
-              {res.correct ? "✓ Correct" : "✗ Incorrect"}
+              {res.correct ? <><BsCheckLg className="me-1" />Correct</> : <><BsXLg className="me-1" />Incorrect</>}
             </div>
           )}
         </div>
@@ -166,10 +183,34 @@ export default function QuizTake() {
     );
   };
 
+  if (!accessGranted) {
+    return (
+      <div id="wd-quiz-take" className="p-3" style={{ maxWidth: 500 }}>
+        <h3>{quiz.title}</h3>
+        <hr />
+        <div className="mb-3">
+          <label className="form-label fw-bold">This quiz requires an access code.</label>
+          <input
+            className={`form-control ${accessError ? "is-invalid" : ""}`}
+            placeholder="Enter access code"
+            value={accessCodeInput}
+            onChange={(e) => { setAccessCodeInput(e.target.value); setAccessError(false); }}
+            onKeyDown={(e) => e.key === "Enter" && handleAccessCodeSubmit()}
+          />
+          {accessError && <div className="invalid-feedback">Incorrect access code. Please try again.</div>}
+        </div>
+        <button className="btn btn-danger" onClick={handleAccessCodeSubmit}>Submit</button>
+        <button className="btn btn-secondary ms-2" onClick={() => router.push(`/courses/${courseId}/quizzes/${quizId}`)}>
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div id="wd-quiz-take" className="p-3">
       <h3>{quiz.title}</h3>
-      {quiz.description && <p>{quiz.description}</p>}
+      {quiz.description && <p className="text-muted">{quiz.description}</p>}
 
       {submitted && result && (
         <div className="alert alert-info">
@@ -189,11 +230,11 @@ export default function QuizTake() {
               disabled={currentIdx === 0}
               onClick={() => setCurrentIdx((i) => i - 1)}
             >
-              ◀ Previous
+              <BsChevronLeft className="me-1" />Previous
             </button>
             {currentIdx < questions.length - 1 ? (
               <button className="btn btn-secondary" onClick={() => setCurrentIdx((i) => i + 1)}>
-                Next ▶
+                Next <BsChevronRight className="ms-1" />
               </button>
             ) : (
               <button className="btn btn-danger" onClick={handleSubmit} disabled={loading}>
