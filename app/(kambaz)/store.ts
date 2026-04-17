@@ -4,6 +4,7 @@ import modulesReducer from "./courses/[cid]/modules/reducer";
 import assignmentsReducer from "./courses/[cid]/assignments/reducer";
 import accountReducer from "./account/reducer";
 import enrollmentsReducer from "./enrollments/reducer";
+import quizzesReducer from "./courses/[cid]/quizzes/reducer";
 
 const ENROLLMENTS_STORAGE_KEY = "kambaz.enrollments";
 
@@ -42,6 +43,7 @@ const store = configureStore({
     assignmentsReducer,
     accountReducer,
     enrollmentsReducer,
+    quizzesReducer,
   },
   preloadedState: persistedEnrollments
     ? {
