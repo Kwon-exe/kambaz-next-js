@@ -35,11 +35,9 @@ export default function Kambaz() {
                     <ul className="list-group list-group-flush mb-4">
                       <li className="list-group-item px-0 d-flex justify-content-between align-items-center">
                         <span>Nicolo Lagravinese</span>
-                        <span className="text-muted small">Frontend</span>
                       </li>
                       <li className="list-group-item px-0 d-flex justify-content-between align-items-center">
                         <span>Kwon Lok Young</span>
-                        <span className="text-muted small">Backend</span>
                       </li>
                     </ul>
 
