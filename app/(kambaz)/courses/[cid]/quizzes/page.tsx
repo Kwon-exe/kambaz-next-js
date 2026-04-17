@@ -36,6 +36,7 @@ export default function Quizzes() {
   const isFaculty = (currentUser as any)?.role === "FACULTY";
   const [search, setSearch] = useState("");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
 
   const courseQuizzes = quizzes.filter((q: Quiz) => q.course === courseId);
   const filtered = courseQuizzes.filter((q: Quiz) =>
@@ -43,18 +44,29 @@ export default function Quizzes() {
   );
 
   useEffect(() => {
-    client.findQuizzesForCourse(courseId).then((data) => dispatch(setQuizzes(data)));
+    client
+      .findQuizzesForCourse(courseId)
+      .then((data) => dispatch(setQuizzes(data)))
+      .catch(console.error);
   }, [courseId]);
 
   const handleAddQuiz = async () => {
-    const newQuiz = await client.createQuiz(courseId, defaultQuiz(courseId));
-    dispatch(addQuiz(newQuiz));
-    router.push(`/courses/${courseId}/quizzes/${newQuiz._id}/edit`);
+    if (adding) return;
+    setAdding(true);
+    try {
+      const newQuiz = await client.createQuiz(courseId, defaultQuiz(courseId));
+      dispatch(addQuiz(newQuiz));
+      router.push(`/courses/${courseId}/quizzes/${newQuiz._id}/edit`);
+    } catch (err: any) {
+      alert(err?.response?.data?.error || "Failed to create quiz. Are you logged in as faculty?");
+    } finally {
+      setAdding(false);
+    }
   };
 
   const handleDelete = async (quizId: string) => {
     if (!window.confirm("Delete this quiz?")) return;
-    await client.deleteQuiz(quizId);
+    await client.deleteQuiz(quizId).catch(console.error);
     dispatch(deleteQuiz(quizId));
   };
 
@@ -81,8 +93,9 @@ export default function Quizzes() {
             id="wd-add-quiz"
             className="btn btn-danger ms-auto"
             onClick={handleAddQuiz}
+            disabled={adding}
           >
-            <BsPlus className="fs-5" /> Quiz
+            <BsPlus className="fs-5" /> {adding ? "Creating..." : "Quiz"}
           </button>
         )}
       </div>
