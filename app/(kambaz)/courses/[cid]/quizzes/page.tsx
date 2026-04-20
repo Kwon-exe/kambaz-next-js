@@ -45,9 +45,13 @@ export default function Quizzes() {
   const [adding, setAdding] = useState(false);
 
   const courseQuizzes = quizzes.filter((q: Quiz) => q.course === courseId);
-  const filtered = courseQuizzes.filter((q: Quiz) =>
-    q.title.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = courseQuizzes
+    .filter((q: Quiz) => q.title.toLowerCase().includes(search.toLowerCase()))
+    .sort((a: Quiz, b: Quiz) => {
+      const aDate = a.availableDate ? new Date(a.availableDate).getTime() : Infinity;
+      const bDate = b.availableDate ? new Date(b.availableDate).getTime() : Infinity;
+      return aDate - bDate;
+    });
 
   useEffect(() => {
     client

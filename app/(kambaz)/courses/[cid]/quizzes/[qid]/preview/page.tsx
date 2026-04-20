@@ -155,6 +155,17 @@ export default function QuizPreview() {
 
       {quiz.oneQuestionAtATime && !submitted ? (
         <div>
+          <div className="d-flex flex-wrap gap-2 mb-3">
+            {questions.map((_, i) => (
+              <button
+                key={i}
+                className={`btn btn-sm ${i === currentIdx ? "btn-danger" : "btn-outline-secondary"}`}
+                onClick={() => setCurrentIdx(i)}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
           {questions.length > 0 && renderQuestion(questions[currentIdx], currentIdx)}
           <div className="d-flex justify-content-between mt-3">
             <button
