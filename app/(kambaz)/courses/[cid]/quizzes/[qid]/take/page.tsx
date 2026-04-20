@@ -1,4 +1,5 @@
 "use client";
+// Quiz Take screen — student-only; scoring is server-side, attempts saved to DB per student
 import { useParams, useRouter } from "next/navigation";
 import { BsCheckLg, BsChevronLeft, BsChevronRight, BsXLg } from "react-icons/bs";
 import { useEffect, useState } from "react";
@@ -23,6 +24,7 @@ export default function QuizTake() {
   const [result, setResult] = useState<any>(null);
   const [attemptCount, setAttemptCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  // access code gate — shown before quiz if quiz.accessCode is set
   const [accessCodeInput, setAccessCodeInput] = useState("");
   const [accessGranted, setAccessGranted] = useState(false);
   const [accessError, setAccessError] = useState(false);
@@ -37,12 +39,13 @@ export default function QuizTake() {
       if (loadedQuiz && !loadedQuiz.accessCode) {
         setAccessGranted(true);
       }
+      // if a previous attempt exists, pre-fill answers and show results immediately
       const lastAttempt = await client.getLastAttempt(quizId);
       const { count } = await client.getAttemptCount(quizId);
       setAttemptCount(count);
       if (lastAttempt) {
         setResult(lastAttempt);
-        setSubmitted(true);
+        setSubmitted(true); // show previous results without re-taking
         setAccessGranted(true);
         const prevAnswers: Record<string, string> = {};
         (lastAttempt.answers || []).forEach((a: any) => {
@@ -57,6 +60,7 @@ export default function QuizTake() {
   if (!quiz) return <div className="p-3">Loading...</div>;
 
   const questions = quiz.questions || [];
+  // max attempts: 1 unless multipleAttempts is enabled
   const maxAttempts = quiz.multipleAttempts ? quiz.howManyAttempts : 1;
   const canRetake = attemptCount < maxAttempts;
 
@@ -72,6 +76,7 @@ export default function QuizTake() {
   const setAnswer = (questionId: string, answer: string) =>
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
 
+  // scoring happens server-side in routes.js submitAttempt — result is saved to DB per student
   const handleSubmit = async () => {
     setLoading(true);
     try {

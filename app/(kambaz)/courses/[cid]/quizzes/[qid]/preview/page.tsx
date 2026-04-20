@@ -1,4 +1,5 @@
 "use client";
+// Quiz Preview screen — faculty-only; scoring is client-side and results are NOT saved to the database
 import { useParams, useRouter } from "next/navigation";
 import { BsCheckLg, BsChevronLeft, BsChevronRight, BsExclamationTriangleFill, BsPencil, BsXLg } from "react-icons/bs";
 import { useEffect, useState } from "react";
@@ -17,7 +18,7 @@ export default function QuizPreview() {
     quizzes.find((q: Quiz) => q._id === quizId) ?? null,
   );
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [currentIdx, setCurrentIdx] = useState(0);
+  const [currentIdx, setCurrentIdx] = useState(0); // tracks current question in one-at-a-time mode
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState<{ score: number; maxScore: number; answers: any[] } | null>(null);
 
@@ -32,6 +33,7 @@ export default function QuizPreview() {
   const setAnswer = (questionId: string, answer: string) =>
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
 
+  // scoring is client-side only — preview results are NOT saved to the database
   const handleSubmit = () => {
     let score = 0;
     let maxScore = 0;
@@ -39,6 +41,7 @@ export default function QuizPreview() {
       maxScore += q.points || 0;
       const answer = answers[q._id] || "";
       let correct = false;
+      // MC/TF: exact match on correctAnswer | FIB: case-insensitive match on possibleAnswers
       if (q.type === "MULTIPLE_CHOICE" || q.type === "TRUE_FALSE") {
         correct = answer === q.correctAnswer;
       } else if (q.type === "FILL_IN_BLANK") {

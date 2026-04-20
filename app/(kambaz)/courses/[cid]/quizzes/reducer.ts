@@ -1,3 +1,4 @@
+// Redux slice for quizzes — defines Quiz/Question types, default values, and state actions
 import { createSlice } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 
@@ -14,6 +15,7 @@ export type Question = {
   possibleAnswers?: string[];
 };
 
+// full quiz object — mirrors the MongoDB schema in kambaz-node-server-app/Kambaz/quizzes/schema.js
 export type Quiz = {
   _id: string;
   course: string;
@@ -36,10 +38,11 @@ export type Quiz = {
   untilDate?: string;
   published: boolean;
   questions: Question[];
-  lastScore?: number | null;
+  lastScore?: number | null;     // injected by server for students (last attempt)
   lastMaxScore?: number | null;
 };
 
+// used when faculty clicks "+Quiz" — all fields editable in the editor
 export const defaultQuiz = (courseId: string): Omit<Quiz, "_id"> => ({
   course: courseId,
   title: "Unnamed Quiz",
@@ -60,6 +63,7 @@ export const defaultQuiz = (courseId: string): Omit<Quiz, "_id"> => ({
   questions: [],
 });
 
+// used when "+ New Question" is clicked in the questions tab
 export const defaultQuestion = (): Question => ({
   _id: uuidv4(),
   type: "MULTIPLE_CHOICE",
@@ -74,16 +78,17 @@ export const defaultQuestion = (): Question => ({
   possibleAnswers: [""],
 });
 
+// redux slice — registered in app/(kambaz)/store.ts as quizzesReducer
 const quizzesSlice = createSlice({
   name: "quizzes",
   initialState: { quizzes: [] as Quiz[] },
   reducers: {
-    setQuizzes: (state, { payload }) => { state.quizzes = payload; },
-    addQuiz: (state, { payload }) => { state.quizzes.push(payload); },
-    updateQuiz: (state, { payload }) => {
+    setQuizzes: (state, { payload }) => { state.quizzes = payload; },       // replaces full list on page load
+    addQuiz: (state, { payload }) => { state.quizzes.push(payload); },       // after createQuiz API call
+    updateQuiz: (state, { payload }) => {                                    // after updateQuiz API call
       state.quizzes = state.quizzes.map((q) => (q._id === payload._id ? payload : q));
     },
-    deleteQuiz: (state, { payload: quizId }) => {
+    deleteQuiz: (state, { payload: quizId }) => {                            // after deleteQuiz API call
       state.quizzes = state.quizzes.filter((q) => q._id !== quizId);
     },
   },

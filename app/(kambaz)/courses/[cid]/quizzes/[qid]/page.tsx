@@ -1,4 +1,5 @@
 "use client";
+// Quiz Details screen — shows quiz properties summary; faculty can edit/preview/publish, students can take
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BsPencil } from "react-icons/bs";
@@ -30,16 +31,17 @@ export default function QuizDetails() {
   const isFaculty = (currentUser as any)?.role === "FACULTY";
 
   const [quiz, setQuiz] = useState<Quiz | null>(
-    quizzes.find((q: Quiz) => q._id === quizId) ?? null,
+    quizzes.find((q: Quiz) => q._id === quizId) ?? null, // try Redux first, fallback to API
   );
   const [lastAttempt, setLastAttempt] = useState<any>(null);
   const [attemptCount, setAttemptCount] = useState(0);
 
   useEffect(() => {
     if (!quiz) {
-      client.findQuizById(quizId).then(setQuiz);
+      client.findQuizById(quizId).then(setQuiz); // load if not in Redux store
     }
     if (!isFaculty) {
+      // load student's previous attempt info for display
       client.getLastAttempt(quizId).then(setLastAttempt);
       client.getAttemptCount(quizId).then(({ count }) => setAttemptCount(count));
     }
@@ -54,7 +56,9 @@ export default function QuizDetails() {
 
   if (!quiz) return <div className="p-3">Loading...</div>;
 
+  // points = sum of all question points (not a stored field)
   const totalPoints = (quiz.questions || []).reduce((s, q) => s + (q.points || 0), 0);
+  // student can only take if attempts remain
   const maxAttemptsAllowed = quiz.multipleAttempts ? quiz.howManyAttempts : 1;
   const canTake = !isFaculty && attemptCount < maxAttemptsAllowed;
 

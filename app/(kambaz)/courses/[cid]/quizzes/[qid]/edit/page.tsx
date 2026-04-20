@@ -1,4 +1,5 @@
 "use client";
+// Quiz Editor — two tabs: Details (quiz settings) and Questions (add/edit/delete questions)
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BsXLg } from "react-icons/bs";
@@ -18,7 +19,7 @@ export default function QuizEditor() {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "questions" ? "questions" : "details";
-  const [activeTab, setActiveTab] = useState<"details" | "questions">(initialTab);
+  const [activeTab, setActiveTab] = useState<"details" | "questions">(initialTab); // ?tab=questions jumps straight to questions
 
   const { quizzes } = useSelector((state: RootState) => state.quizzesReducer);
   const [quiz, setQuiz] = useState<Quiz | null>(
@@ -28,7 +29,7 @@ export default function QuizEditor() {
 
   useEffect(() => {
     if (!quiz) {
-      client.findQuizById(quizId).then(setQuiz);
+      client.findQuizById(quizId).then(setQuiz); // load if navigated directly
     }
   }, [quizId]);
 
@@ -36,9 +37,11 @@ export default function QuizEditor() {
 
   const totalPoints = quiz.questions.reduce((s, q) => s + (q.points || 0), 0);
 
+  // all edits stay in local state — nothing is saved until a save button is clicked
   const setField = (field: keyof Quiz, value: any) =>
     setQuiz((prev) => prev ? { ...prev, [field]: value } : prev);
 
+  // save to DB — dispatches to Redux so list/details stay in sync
   const saveAndNavigate = async (path: string) => {
     const saved = await client.updateQuiz(quiz);
     dispatch(updateQuiz(saved));
@@ -46,15 +49,16 @@ export default function QuizEditor() {
   };
 
   const saveAndPublish = async () => {
-    const saved = await client.updateQuiz({ ...quiz, published: true });
+    const saved = await client.updateQuiz({ ...quiz, published: true }); // set published before saving
     dispatch(updateQuiz(saved));
     router.push(`/courses/${courseId}/quizzes`);
   };
 
   const handleSave = () => saveAndNavigate(`/courses/${courseId}/quizzes/${quizId}`);
-  const handleCancel = () => router.push(`/courses/${courseId}/quizzes`);
+  const handleCancel = () => router.push(`/courses/${courseId}/quizzes`); // no save, go to list
 
   // -- Question helpers --
+  // adds a new default MC question and immediately opens it in edit mode
   const addQuestion = () => {
     const q = defaultQuestion();
     setQuiz((prev) => prev ? { ...prev, questions: [...prev.questions, q] } : prev);

@@ -1,4 +1,5 @@
 "use client";
+// Quiz List screen — shows all quizzes for a course, handles add/delete/publish and search
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -34,16 +35,17 @@ function formatDate(dateStr?: string): string {
 
 export default function Quizzes() {
   const { cid } = useParams<{ cid: string | string[] }>();
-  const courseId = Array.isArray(cid) ? cid[0] : cid;
+  const courseId = Array.isArray(cid) ? cid[0] : cid; // unwrap Next.js array param
   const dispatch = useDispatch();
   const router = useRouter();
   const { quizzes } = useSelector((state: RootState) => state.quizzesReducer);
   const { currentUser } = useSelector((state: RootState) => state.accountReducer);
-  const isFaculty = (currentUser as any)?.role === "FACULTY";
+  const isFaculty = (currentUser as any)?.role === "FACULTY"; // hides add/edit/delete for students
   const [search, setSearch] = useState("");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
 
+  // filter to this course, match search, then sort by availableDate ascending
   const courseQuizzes = quizzes.filter((q: Quiz) => q.course === courseId);
   const filtered = courseQuizzes
     .filter((q: Quiz) => q.title.toLowerCase().includes(search.toLowerCase()))
@@ -53,6 +55,7 @@ export default function Quizzes() {
       return aDate - bDate;
     });
 
+  // fetch quizzes for this course on mount; students only get published ones (server filters)
   useEffect(() => {
     client
       .findQuizzesForCourse(courseId)
@@ -60,6 +63,7 @@ export default function Quizzes() {
       .catch(console.error);
   }, [courseId]);
 
+  // creates quiz with defaults, dispatches to Redux, navigates to editor
   const handleAddQuiz = async () => {
     if (adding) return;
     setAdding(true);
@@ -80,6 +84,7 @@ export default function Quizzes() {
     dispatch(deleteQuiz(quizId));
   };
 
+  // flips published flag — students immediately gain/lose access
   const handleTogglePublish = async (quiz: Quiz) => {
     const updated = { ...quiz, published: !quiz.published };
     const saved = await client.updateQuiz(updated);
