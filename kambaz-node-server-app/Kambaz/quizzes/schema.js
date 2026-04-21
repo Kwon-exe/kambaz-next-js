@@ -1,3 +1,5 @@
+// schema.js — Mongoose schemas for quizzes and questions
+// Defines the shape of a quiz document: metadata (title, dates, settings), nested questions array, and each question's choices/answers
 import mongoose from "mongoose";
 
 const choiceSchema = new mongoose.Schema({ _id: String, text: String }, { _id: false });

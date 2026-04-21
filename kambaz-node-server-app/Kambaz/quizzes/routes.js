@@ -1,3 +1,5 @@
+// routes.js — Express route handlers for quizzes
+// Registers all quiz-related endpoints on the app; handles auth checks (session), role guards (FACULTY/STUDENT), scoring, and attempt tracking
 import QuizzesDao from "./dao.js";
 import AttemptsDao from "../attempts/dao.js";
 
@@ -57,6 +59,7 @@ export default function QuizzesRoutes(app, db) {
     res.send(status);
   };
 
+  // submitAttempt — scores answers server-side and saves attempt to DB; enforces max attempt limit for students
   const submitAttempt = async (req, res) => {
     const currentUser = req.session["currentUser"];
     if (!currentUser) { res.sendStatus(401); return; }
@@ -118,6 +121,7 @@ export default function QuizzesRoutes(app, db) {
     res.json({ count });
   };
 
+  // Route registrations
   app.get("/api/courses/:courseId/quizzes", findQuizzesForCourse);
   app.get("/api/quizzes/:quizId", findQuizById);
   app.post("/api/courses/:courseId/quizzes", createQuiz);

@@ -1,3 +1,5 @@
+// dao.js — Data Access Object for quizzes
+// All direct Mongoose queries for the quizzes collection live here; called by routes.js
 import { v4 as uuidv4 } from "uuid";
 import model from "./model.js";
 
