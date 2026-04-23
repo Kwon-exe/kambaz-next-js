@@ -3,6 +3,16 @@ import UsersDao from "./dao.js";
 export default function UserRoutes(app, db) {
   const dao = UsersDao(db);
 
+  const normalizeUser = (user) => {
+    if (!user) return null;
+    const plainUser =
+      typeof user.toObject === "function" ? user.toObject() : { ...user };
+    return {
+      ...plainUser,
+      _id: plainUser._id ?? plainUser.id ?? plainUser.username,
+    };
+  };
+
   const createUser = async (req, res) => {
     const newUser = await dao.createUser(req.body);
     res.json(newUser);
@@ -45,13 +55,14 @@ export default function UserRoutes(app, db) {
       res.json(users);
       return;
     }
-    res.json(await dao.findAllUsers());
+    const users = await dao.findAllUsers();
+    res.json(users.map(normalizeUser));
   };
 
   const findUserById = async (req, res) => {
     const { userId } = req.params;
     const user = await dao.findUserById(userId);
-    res.json(user);
+    res.json(normalizeUser(user));
   };
 
   const updateUser = async (req, res) => {
@@ -62,10 +73,11 @@ export default function UserRoutes(app, db) {
     if (currentUser && currentUser._id === userId) {
       const updatedCurrentUser = { ...currentUser, ...userUpdates };
       req.session["currentUser"] = updatedCurrentUser;
-      res.json(updatedCurrentUser);
+      res.json(normalizeUser(updatedCurrentUser));
       return;
     }
-    res.json(await dao.findUserById(userId));
+    const updatedUser = await dao.findUserById(userId);
+    res.json(normalizeUser(updatedUser));
   };
 
   const signup = async (req, res) => {
@@ -75,16 +87,18 @@ export default function UserRoutes(app, db) {
       return;
     }
     const currentUser = await dao.createUser(req.body);
-    req.session["currentUser"] = currentUser;
-    res.json(currentUser);
+    const normalizedUser = normalizeUser(currentUser);
+    req.session["currentUser"] = normalizedUser;
+    res.json(normalizedUser);
   };
 
   const signin = async (req, res) => {
     const { username, password } = req.body;
     const currentUser = await dao.findUserByCredentials(username, password);
     if (currentUser) {
-      req.session["currentUser"] = currentUser;
-      res.json(currentUser);
+      const normalizedUser = normalizeUser(currentUser);
+      req.session["currentUser"] = normalizedUser;
+      res.json(normalizedUser);
     } else {
       res.status(401).json({ message: "Unable to login. Try again later." });
     }
@@ -101,7 +115,7 @@ export default function UserRoutes(app, db) {
       res.sendStatus(401);
       return;
     }
-    res.json(currentUser);
+    res.json(normalizeUser(currentUser));
   };
 
   app.post("/api/users", createUser);

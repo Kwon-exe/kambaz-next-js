@@ -113,9 +113,13 @@ export default function Dashboard() {
     fetchCourses();
   }, [currentUser]);
 
+  const sanitizedCourses = (courses || []).filter(
+    (course: any) => course && course._id,
+  );
+
   const visibleCourses = showAllCourses
-    ? courses
-    : courses.filter((course: any) => isEnrolled(course._id));
+    ? sanitizedCourses
+    : sanitizedCourses.filter((course: any) => isEnrolled(course._id));
 
   return (
     <div id="wd-dashboard">
